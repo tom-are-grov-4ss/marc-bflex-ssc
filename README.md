@@ -3,11 +3,9 @@ Collection of tools for post-processing of marc.
 
 Tools are based on the newest hdf-file format
 
-# Installation
+## Install in developer mode
 
 1. Clone the repo from github
-
-## Install in developer mode
 
 2. Move to repository root in terminal:
 ```
