@@ -9,24 +9,28 @@ Tools are based on the newest hdf-file format
 
 ## Install in developer mode
 
-2. Create a virtual environment for the project. In a terminal, move to
-repository root (git\marc-tools) and run deploy:
+2. Move to repository root in terminal:
+```
+cd git\marc-tools
+```
+
+3. Run deploy script:
 ```
 python deploy.py
 ```
 This creates a .venv folder with a virtual environment, installing all packages lited in requirements.txt
 
-3. Activate environment
+4. Activate environment
 ```
 .venv\Scripts\activate
 ```
 
-4. Install necessary notebook extensions:
+5. Install necessary notebook extensions:
 ```
 python -m ipykernel install --user --name=marc-tools
 ```
 
-5. Enable developer mode:
+6. Enable developer mode:
 ```
 pip install -e .
 ```
