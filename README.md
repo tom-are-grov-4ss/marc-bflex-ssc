@@ -10,7 +10,7 @@ Tools are based on the newest hdf-file format
 ## Install in developer mode
 
 2. Create a virtual environment for the project. In a terminal, move to
-repository root (git\flex-fatigue-tools) and run deploy:
+repository root (git\marc-tools) and run deploy:
 ```
 python deploy.py
 ```
@@ -23,7 +23,7 @@ This creates a .venv folder with a virtual environment, installing all packages 
 
 4. Install necessary notebook extensions:
 ```
-python -m ipykernel install --user --name=flex-fatigue-tools
+python -m ipykernel install --user --name=marc-tools
 ```
 
 5. Enable developer mode:
@@ -38,7 +38,7 @@ the Jupyter session)
 
 In your notebook, run
 ```
-import flex_fatigue_tools as fft
+import marc_tools as mt
 ```
 to import the module
 
