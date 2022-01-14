@@ -7,7 +7,7 @@ cov_*
 junit-py*
 
 # too big files
-
+*.gzip
 _projects/*/downloaded/archive
 
 # files not used or bad quality
