@@ -4,6 +4,7 @@ import logging
 from . import general
 from . import scf
 from . import bflex
+from . import crossection
 
 
 __version__ = pkg_resources.get_distribution('marc_tools').version
