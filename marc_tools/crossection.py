@@ -2,7 +2,7 @@
 # import pathlib
 import plotly
 import logging
-# import re
+import re
 import os
 import sys
 
@@ -10,10 +10,9 @@ import sys
 import numpy as np
 import pandas as pd
 import plotly.graph_objs as go
-# import ipywidgets.widgets as widgets
+import marc_tools as mt
 
 # Packes from modules
-# from ipywidgets import Layout
 # from IPython.display import display, clear_output, HTML
 plotly.offline.init_notebook_mode(connected=True)
 
@@ -471,3 +470,75 @@ def df_combine_csv(case, excel_file, post_folder):
     #         print('{} not in {}'.format(case, sheet))
 
     return df_set
+
+
+def df_cs(project_folder, runs, exclude_cases=[]):
+    '''
+    Input:
+        - project_folder : folder with project {type: pathlib.Path}
+        - runs : list with folders with runs
+        - exclude_cases : case names to exclude
+
+    Return
+        - df_case[case][position][result]
+    '''
+
+    # Initialization
+    sorted_csv, df_case, increments, cbodies = {}, {}, {}, {}
+
+    # Find csv files
+    csv_files = []
+    for run in runs:
+
+        run_folder = project_folder / run
+
+        # Find csv files
+        all_csv_files = [run_folder / f.lower() for f in os.listdir(run_folder)
+                         if len(re.findall(r'\d+cb.csv', f)) == 1]
+        csv_files += [f for f in all_csv_files
+                      if os.path.isfile(run_folder /
+                                        str(f).replace('cb.csv', 'cb.res'))]
+
+    # Remove cases to be exluded
+    csv_files = [csv for csv in csv_files
+                 if not any([ex.lower() in csv.stem.lower()
+                             for ex in exclude_cases])]
+
+    # Sort csv so that csv-files are tied to correct model
+    for csv_file in csv_files:
+        csv_info = csv_file.stem.rpartition('_')
+        model, csv = csv_file.parent / csv_info[0], csv_info[2]
+
+        if model not in sorted_csv.keys():
+            sorted_csv[model] = [csv]
+        else:
+            sorted_csv[model].append(csv)
+
+    # Get dataframe for each case
+    for case in sorted_csv.keys():
+
+        # For each case file / CS cut
+        df_csv = {}
+        for csv_file in sorted_csv[case]:
+
+            # Find directory to csv and read csv file
+            csv_file_dir = case.parent / ''.join([case.stem, '_',
+                                                  csv_file, '.csv'])
+
+            try:
+                df_temp, cbodies[case.stem.lower()] = mt.crossection\
+                                                        .cs_reader(csv_file_dir)
+            except Exception as e:
+                log.warning(f'{e} : {csv_file_dir} is empty')
+                continue
+
+            # One df for each position
+            pos = df_temp['Origo Z GCS'][0]
+            df_csv[f'{pos:.0f}'] = df_temp
+            df_case[case.stem] = df_csv
+
+            # Extract increments
+            if case.stem not in increments:
+                increments[case.stem] = df_temp['inc'].iloc[-1]
+
+    return df_case
