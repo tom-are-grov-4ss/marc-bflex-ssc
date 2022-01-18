@@ -48,7 +48,7 @@ line_styles = ['lines', 'lines+markers', 'markers',
                'lines', 'lines+markers', 'markers']
 
 
-def cs_reader(file_dir, combine=''):
+def cs_reader(file_dir, extra=False, combine=''):
     """
     Reads .csv-file produced by CrossSection
     Renames columns to more readable names
@@ -120,16 +120,17 @@ def cs_reader(file_dir, combine=''):
     # Calc additional parameters for each part
     cbodies = set([n.split('.')[-1] for n in df.columns.values if '.' in n])
 
-    for p in sorted(cbodies):
-        # Total force
-        df['.'.join(['Ftot', p])] = (df['.'.join(['Fx', p])]**2 +
-                                     df['.'.join(['Fy', p])]**2 +
-                                     df['.'.join(['Fz', p])]**2).pow(1/2)
+    if extra is True:
+        for p in sorted(cbodies):
+            # Total force
+            df['.'.join(['Ftot', p])] = (df['.'.join(['Fx', p])]**2 +
+                                        df['.'.join(['Fy', p])]**2 +
+                                        df['.'.join(['Fz', p])]**2).pow(1/2)
 
-        # Calc stiffness for each part
-        df['.'.join(['EI', p])] = (df['.'.join(['My', p])]
-                                   / df['.'.join(['K1_2'])]).replace([np.inf],
-                                                                     0.0)
+            # Calc stiffness for each part
+            df['.'.join(['EI', p])] = (df['.'.join(['My', p])]
+                                    / df['.'.join(['K1_2'])]).replace([np.inf],
+                                                                        0.0)
 
     return df, cbodies
 
@@ -472,7 +473,7 @@ def df_combine_csv(case, excel_file, post_folder):
     return df_set
 
 
-def df_cs(project_folder, runs, exclude_cases=[]):
+def df_cs(project_folder, runs, exclude_cases=[], positions='start'):
     '''
     Input:
         - project_folder : folder with project {type: pathlib.Path}
@@ -517,13 +518,12 @@ def df_cs(project_folder, runs, exclude_cases=[]):
     # Get dataframe for each case
     for case in sorted_csv.keys():
 
-        # For each case file / CS cut
+        # For each crossection file
         df_csv = {}
         for csv_file in sorted_csv[case]:
 
             # Find directory to csv and read csv file
-            csv_file_dir = case.parent / ''.join([case.stem, '_',
-                                                  csv_file, '.csv'])
+            csv_file_dir = case.parent / f'{case.stem}_{csv_file}.csv'
 
             try:
                 df_temp, cbodies[case.stem.lower()] = mt.crossection\
@@ -534,6 +534,12 @@ def df_cs(project_folder, runs, exclude_cases=[]):
 
             # One df for each position
             pos = df_temp['Origo Z GCS'][0]
+
+            # Overwrite coordinates for each position
+            if positions == 'start':
+                df_temp['Origo Z GCS'] = [df_temp['Origo Z GCS'][0]] * len(df_temp)
+
+            # Put each df into dict
             df_csv[f'{pos:.0f}'] = df_temp
             df_case[case.stem] = df_csv
 
