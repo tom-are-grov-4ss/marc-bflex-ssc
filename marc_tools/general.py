@@ -103,3 +103,22 @@ def completed(message, tic):
 
     logging.info(f'Completed {message.strip()} in '
                  f'{readable_time(time.time() - tic)}')
+
+
+def find_nearest(mylist, value):
+    '''
+    Fix so that it find highest number as well
+    '''
+
+    # Sort list
+    sorted_list = sorted(mylist)
+
+    if (value < sorted_list[0]) or (value > sorted_list[-1]):
+        return False
+
+    # Loop through
+    for i, s in enumerate(sorted_list):
+        if s <= value:
+            pass
+        else:
+            return [sorted_list[i-1], s]
