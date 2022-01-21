@@ -122,3 +122,11 @@ def find_nearest(mylist, value):
             pass
         else:
             return [sorted_list[i-1], s]
+
+
+def ss(list):
+    '''
+    Sort set
+    '''
+
+    return sorted(set(list))
